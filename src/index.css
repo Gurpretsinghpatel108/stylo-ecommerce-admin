@@ -1,0 +1,64 @@
+/* src/index.css */
+
+/* Reset some default browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Body background and text color */
+body {
+  background-color: #f5f5f5;
+  color: #1f2937; /* dark gray */
+  min-height: 100vh;
+}
+
+/* Links style */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Buttons default style */
+button {
+  cursor: pointer;
+  border: none;
+  background-color: #2563eb; /* blue */
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #1d4ed8; /* darker blue */
+}
+
+/* Inputs default style */
+input, select, textarea {
+  padding: 8px;
+  border: 1px solid #d1d5db; /* light gray */
+  border-radius: 4px;
+  outline: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #2563eb; /* blue focus */
+}
+
+/* Container padding */
+.container {
+  padding: 20px;
+}
+
+/* Flex utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}

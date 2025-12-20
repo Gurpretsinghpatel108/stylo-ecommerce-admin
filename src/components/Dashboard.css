@@ -1,0 +1,12 @@
+.dashboard-container {
+  display: flex;
+}
+
+.dashboard-content {
+  width: 80%; /* Sidebar ke bgl me */
+  margin-left: 20%; /* Sidebar width ke equal */
+  padding: 20px;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+  box-sizing: border-box;
+}

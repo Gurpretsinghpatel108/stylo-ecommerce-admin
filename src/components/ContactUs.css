@@ -1,0 +1,103 @@
+.contact-us-page {
+  max-width: 650px;
+  margin: 50px auto;
+  padding: 50px 40px;
+  background: linear-gradient(145deg, #f0f8ff, #cce0ff);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-us-page:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.contact-us-page h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #002366;
+  font-size: 32px;
+  letter-spacing: 1px;
+}
+
+/* Table Layout */
+.contact-form table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 20px; /* spacing between rows */
+}
+
+.contact-form td:first-child {
+  width: 30%;
+  text-align: right;
+  padding-right: 20px;
+  font-weight: 500;
+  color: #003580;
+  vertical-align: top;
+}
+
+.contact-form td:last-child {
+  width: 70%;
+}
+
+/* Inputs & Textarea */
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  line-height: 20px;
+  background-color: #fff;
+  transition: all 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+}
+
+/* Textarea */
+.contact-form textarea {
+  height: 130px;
+  resize: none;
+}
+
+/* Focus effect */
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: #002366;
+  box-shadow: 0 0 12px rgba(0, 53, 128, 0.3);
+}
+
+/* Submit Button Centered */
+.contact-form button {
+  display: block;
+  margin: 25px auto 0 auto; /* top 25px, auto left-right to center */
+  padding: 15px 50px;
+  font-size: 16px;
+  font-weight: bold;
+  background: linear-gradient(90deg, #002366, #0050a0);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 5px 20px rgba(0, 80, 160, 0.3);
+  transition: all 0.3s ease;
+}
+
+.contact-form button:hover {
+  background: linear-gradient(90deg, #0040a0, #0066cc);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 80, 160, 0.4);
+}
+
+/* Info message */
+.contact-form p {
+  text-align: center;
+  margin-top: 20px;
+  font-weight: 500;
+  color: green;
+  font-size: 15px;
+}

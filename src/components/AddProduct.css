@@ -1,0 +1,94 @@
+.add-product-container {
+  max-width: 650px;
+  margin: 40px auto;
+  padding: 30px 25px;
+  background: #f7f9fc; /* light soft background instead of plain white */
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+
+.add-product-container h2 {
+  text-align: center;
+  color: #003580;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
+}
+
+.product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.product-form input[type="text"],
+.product-form input[type="number"],
+.product-form input[type="file"],
+.product-form select,
+.product-form textarea {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: 0.3s;
+  background-color: #fff;
+}
+
+.product-form input:focus,
+.product-form select:focus,
+.product-form textarea:focus {
+  border-color: #003580;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 53, 128, 0.3);
+}
+
+.price-container {
+  display: flex;
+  gap: 12px;
+}
+
+.price-container input {
+  flex: 1;
+}
+
+.product-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.product-form button {
+  padding: 14px;
+  background: linear-gradient(90deg, #003580, #0050a0);
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.product-form button:hover {
+  background: linear-gradient(90deg, #0050a0, #0070c0);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 80, 160, 0.3);
+}
+
+.message {
+  color: #006400;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 1rem;
+}
+
+/* Disabled subcategory style */
+.product-form select:disabled {
+  background-color: #f0f0f0;
+  color: #aaa;
+  cursor: not-allowed;
+  border: 1px solid #ddd;
+}
