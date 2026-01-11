@@ -17,7 +17,7 @@ import CustomerList from "./CustomerList";
 import FAQPage from "./FAQPage";
 import ContactUs from "./ContactUs";
 import OtherPages from "./OtherPages";
-import CustomizeMenuLinks from "./customizemenulink";
+import CustomizeMenuLinks from "./CustomizeMenuLink";
 import Checkout from "./Checkout";
 import Coupons from "./Coupons";
 import Profile from "./Profile";
