@@ -6,7 +6,7 @@ import { Routes, Route } from "react-router-dom";
 // Components
 import Sidebar from "./Sidebar";
 import CategoryMenu from "./CategoryMenu";
-import SubcategoryMenu from "./SubcategoryMenu";
+import SubcategoryMenu from "./SubCategoryMenu";
 import AddProduct from "./AddProduct";
 import AllProduct from "./AllProduct";
 import AllOrders from "./AllOrders";
