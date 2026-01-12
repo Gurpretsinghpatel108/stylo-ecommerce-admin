@@ -75,6 +75,7 @@
 
 
 
+// src/components/Login.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
@@ -91,6 +92,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE}/api/login`, {
         method: "POST",
@@ -105,10 +107,12 @@ function Login() {
       const data = await res.json();
 
       if (data.success) {
-        alert("✅ " + data.message);
+        alert("✅ Login Successful!");
+        // Save token in localStorage for authenticated requests
+        localStorage.setItem("token", data.token);
         navigate("/dashboard"); // login ke baad dashboard
       } else {
-        alert("❌ " + data.message);
+        alert("❌ " + (data.message || "Invalid credentials"));
       }
     } catch (err) {
       console.error("Login Error:", err);
