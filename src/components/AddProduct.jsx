@@ -271,7 +271,7 @@ function AddProduct() {
   // Production-ready API base
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-  // Placeholder images (define here - yeh missing tha!)
+  // Placeholder images (yeh define kar diya - error yahin se aa raha tha!)
   const PlaceholderImg = "https://placehold.co/100x100?text=No+Image&font=roboto";
   const errorFallback = "https://placehold.co/100x100?text=Error&font=roboto";
 
@@ -312,7 +312,7 @@ function AddProduct() {
         try {
           setLoading(true);
           const res = await axios.get(`${API_BASE}/api/products/${id}`);
-          product = res.data.data;
+          product = res.data.data || res.data; // safe fallback
         } catch (err) {
           console.error("Failed to fetch product:", err);
           setMessage("❌ Product load nahi hua!");
@@ -342,16 +342,17 @@ function AddProduct() {
     prefillProduct();
   }, [id, productFromState]);
 
-  // Filter subcategories when category changes
+  // Filter subcategories when category changes (yeh fix kiya - dropdown khulega ab)
   useEffect(() => {
     if (formData.categoryId) {
-      const filtered = subcategories.filter(
-        (sub) => sub.categoryId && (sub.categoryId._id || sub.categoryId) === formData.categoryId
-      );
+      const filtered = subcategories.filter((sub) => {
+        const subCatId = sub.categoryId?._id || sub.categoryId; // populated ya string
+        return subCatId && subCatId.toString() === formData.categoryId.toString();
+      });
       setFilteredSubcategories(filtered);
 
-      // Reset subcategory if not valid after filter
-      if (!filtered.some(s => (s._id || s) === formData.subcategoryId)) {
+      // Reset subcategory if not in filtered list
+      if (!filtered.some(s => (s._id || s).toString() === formData.subcategoryId.toString())) {
         setFormData(prev => ({ ...prev, subcategoryId: "" }));
       }
     } else {
@@ -403,7 +404,7 @@ function AddProduct() {
           headers: { "Content-Type": "multipart/form-data" },
         });
         setMessage("✅ Product added successfully!");
-        // Reset form after add
+        // Reset form
         setFormData({
           categoryId: "",
           subcategoryId: "",
@@ -451,7 +452,7 @@ function AddProduct() {
           name="subcategoryId"
           value={formData.subcategoryId}
           onChange={handleChange}
-          disabled={!formData.categoryId}
+          disabled={!formData.categoryId || filteredSubcategories.length === 0}
           required
         >
           <option value="">-- Select Subcategory --</option>
