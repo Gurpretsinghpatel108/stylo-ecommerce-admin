@@ -197,6 +197,8 @@
 
 
 
+
+
 // src/components/CategoryMenu.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -211,7 +213,7 @@ function CategoryMenu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editId, setEditId] = useState(null);
 
-  // API base URL (production mein Railway, local mein fallback)
+  // API base URL (Vite env se production/local handle)
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
   useEffect(() => {
@@ -277,17 +279,30 @@ function CategoryMenu() {
     setShowAddBox(true);
   };
 
-  // Delete Category
+  // Delete Category (improved with logs & checks)
   const handleDelete = async (id) => {
+    console.log("Attempting to delete category ID:", id); // ← Debug: ID check karo
+
+    if (!id) {
+      alert("Category ID missing hai bhai! Check console.");
+      return;
+    }
+
     if (!window.confirm("Pakka delete karna hai is category ko?")) return;
 
     try {
-      await axios.delete(`${API_BASE}/api/categories/${id}`);
+      const response = await axios.delete(`${API_BASE}/api/categories/${id}`);
+      console.log("Delete success response:", response); // ← Success debug
       alert("Category delete ho gayi!");
       fetchCategories();
     } catch (err) {
-      console.error("Error deleting category:", err);
-      alert("Delete nahi hui: " + (err.response?.data?.message || err.message || "Network error"));
+      console.error("Full delete error:", err.response || err); // ← Detailed error
+      alert(
+        "Delete nahi hui: " +
+          (err.response?.data?.message ||
+            err.message ||
+            "Unknown error - check console & backend logs")
+      );
     }
   };
 
@@ -303,6 +318,10 @@ function CategoryMenu() {
   const filteredCategories = categories.filter(
     (cat) => cat.name && cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Modern placeholder (placehold.co - working in 2026)
+  const placeholderImg = "https://placehold.co/100x100?text=No+Image&font=roboto";
+  const errorFallback = "https://placehold.co/100x100?text=Error&font=roboto";
 
   return (
     <div className="category-menu">
@@ -366,19 +385,17 @@ function CategoryMenu() {
               <tr key={cat._id}>
                 <td>{index + 1}</td>
                 <td>
-                  {cat.image ? (
-                    <img
-                      src={`${API_BASE}/uploads/${cat.image}`}
-                      alt={cat.name}
-                      className="cat-image"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/100?text=No+Image";
-                        e.target.alt = "No image available";
-                      }}
-                    />
-                  ) : (
-                    "-"
-                  )}
+                  <img
+                    src={cat.image ? `${API_BASE}/uploads/${cat.image}` : placeholderImg}
+                    alt={cat.name || "Category image"}
+                    className="cat-image"
+                    width={100}
+                    height={100}
+                    onError={(e) => {
+                      e.target.src = errorFallback;
+                      e.target.alt = "Image load failed";
+                    }}
+                  />
                 </td>
                 <td>{cat.name}</td>
                 <td>
