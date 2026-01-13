@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ecommerceLogo from "./assets/ecommerce.avif";
+import ecommerceLogo from "./assets/ecommerce.jpg";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
