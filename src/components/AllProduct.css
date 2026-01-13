@@ -1,4 +1,16 @@
+.filter-buttons {
+    gap: 7px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+
 .all-product-container {
+      display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-wrap: wrap;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
