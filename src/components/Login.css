@@ -1,0 +1,92 @@
+.login-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px 30px;
+  border-radius: 12px;
+  text-align: center;
+  width: 350px;
+  max-width: 90%;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  height: 50%;
+}
+
+.login-container:hover {
+  transform: translate(-50%, -50%) scale(1.02);
+}
+
+.login-container h2 {
+  margin-bottom: 25px;
+  color: #1f2937;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.login-container input {
+  display: block;
+  width: 100%;
+  margin: 12px 0;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.login-container input:focus {
+  border-color: #2563eb;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-top: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.login-container button:hover {
+  background-color: #1d4ed8;
+}
+
+.forgot-password {
+  text-align: right;
+  margin: 18px 0 12px 0;
+}
+
+.forgot-password a {
+  font-size: 14px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+.register-link {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.register-link a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}

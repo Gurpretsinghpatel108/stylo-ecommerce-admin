@@ -1,0 +1,100 @@
+.category-menu {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.search-input {
+  padding: 5px 10px;
+  width: 200px;
+}
+
+.show-add-btn {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.category-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.category-table th,
+.category-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.category-table th {
+  background-color: #f2f2f2;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 5px 8px;
+  margin: 0 3px;
+  cursor: pointer;
+}
+
+.edit-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+}
+
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 3px;
+}
+
+.active {
+  color: green;
+  font-weight: bold;
+}
+
+.inactive {
+  color: red;
+  font-weight: bold;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-box {
+  background: white;
+  padding: 20px;
+  width: 300px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.overlay-box input,
+.overlay-box select {
+  width: 100%;
+  margin: 8px 0;
+  padding: 5px;
+}
+
+.cat-image {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
