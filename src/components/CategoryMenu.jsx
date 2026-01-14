@@ -231,6 +231,9 @@
 
 
 
+
+
+
 // src/components/CategoryMenu.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -282,9 +285,9 @@ function CategoryMenu() {
         response = await axios.post(`${API_BASE}/api/categories`, formData);
         alert("Category added successfully!");
 
-        // Nayi category ko list ke END mein append kar (line by line add hoga)
-        const newCat = response.data.data || response.data; // backend se returned category
-        setCategories(prev => [...prev, newCat]); // ← End mein add (sabse neeche)
+        // Nayi category ko list ke END mein append kar (horizontal row ke right side pe)
+        const newCat = response.data.data || response.data;
+        setCategories(prev => [...prev, newCat]);
       }
 
       resetForm();
@@ -320,7 +323,7 @@ function CategoryMenu() {
     try {
       await axios.delete(`${API_BASE}/api/categories/${id}`);
       alert("Category delete ho gayi!");
-      fetchCategories(); // Delete ke baad full refresh (order maintain rahega)
+      fetchCategories(); // Delete ke baad refresh
     } catch (err) {
       console.error("Full delete error:", err.response || err);
       alert("Delete nahi hui: " + (err.response?.data?.message || err.message || "Unknown error"));
@@ -335,7 +338,7 @@ function CategoryMenu() {
     setShowAddBox(false);
   };
 
-  // Filter only (no sort – original order maintain rahega, nayi end mein add hogi)
+  // Filter only (no sort – original order + new at end)
   const filteredCategories = categories.filter(
     (cat) => cat.name && cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -390,49 +393,29 @@ function CategoryMenu() {
       )}
 
       {filteredCategories.length > 0 ? (
-        <div className="table-wrapper">
-          <table className="category-table">
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCategories.map((cat, index) => (
-                <tr key={cat._id}>
-                  <td>{index + 1}</td>
-                  <td>
-                    <img
-                      src={cat.image || placeholderImg}
-                      alt={cat.name || "Category image"}
-                      className="cat-image"
-                      width={100}
-                      height={100}
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.src = errorFallback;
-                        e.target.alt = "Image load failed";
-                      }}
-                    />
-                  </td>
-                  <td>{cat.name}</td>
-                  <td>
-                    <span className={cat.status === "Active" ? "active" : "inactive"}>
-                      {cat.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="edit-btn" onClick={() => handleEdit(cat)}>Edit</button>
-                    <button className="delete-btn" onClick={() => handleDelete(cat._id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="categories-horizontal">
+          {filteredCategories.map((cat, index) => (
+            <div key={`${cat._id}-${index}`} className="category-card">
+              <img
+                src={cat.image || placeholderImg}
+                alt={cat.name || "Category image"}
+                className="cat-image"
+                loading="lazy"
+                onError={(e) => {
+                  e.target.src = errorFallback;
+                  e.target.alt = "Image load failed";
+                }}
+              />
+              <p className="cat-name">{cat.name}</p>
+              <span className={cat.status === "Active" ? "status-active" : "status-inactive"}>
+                {cat.status}
+              </span>
+              <div className="cat-actions">
+                <button className="edit-btn" onClick={() => handleEdit(cat)}>Edit</button>
+                <button className="delete-btn" onClick={() => handleDelete(cat._id)}>Delete</button>
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <p style={{ textAlign: "center", color: "#777" }}>No categories found</p>
