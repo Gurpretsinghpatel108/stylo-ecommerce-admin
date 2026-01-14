@@ -465,7 +465,8 @@ function SubcategoryMenu() {
                   <td>{index + 1}</td>
                   <td>
                     <img
-                      src={sub.image ? `${API_BASE}/uploads/${sub.image}` : placeholderImg}
+                      // src={sub.image ? `${API_BASE}/uploads/${sub.image}` : placeholderImg}
+                      src={sub.image || placeholderImg}
                       alt={sub.name || "Subcategory"}
                       className="cat-image"
                       width={100}
