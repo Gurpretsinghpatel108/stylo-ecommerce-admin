@@ -14,7 +14,7 @@ import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router"; // ya @react-navigation/native jo bhi use kar raha
 
-const AUTH_BASE_URL = "http://10.23.168.194:5001"; // tera IP
+const AUTH_BASE_URL = "http://192.168.29.72:5001"; // tera IP
 
 export default function WalletHistoryScreen() {
   const [transactions, setTransactions] = useState([]);

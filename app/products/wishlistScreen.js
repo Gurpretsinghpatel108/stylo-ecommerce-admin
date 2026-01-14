@@ -1,3 +1,6 @@
+
+
+
 // app/products/wishlistScreen.js
 import React, { useEffect, useState } from "react";
 import {
@@ -15,14 +18,7 @@ import { useRouter } from "expo-router";
 import { DeviceEventEmitter } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const SERVER_URL = "http://10.23.168.194:5000";
-
-const getImageUri = (image) => {
-  if (!image) return "https://via.placeholder.com/80";
-  let filename = Array.isArray(image) ? image[0] : image;
-  if (filename.startsWith("http")) return filename;
-  return `${SERVER_URL}/uploads/${filename}`;
-};
+import { getImageUrl } from "../services/api"; // ✅ Yeh import sab fix kar deta hai!
 
 export default function WishlistScreen() {
   const router = useRouter();
@@ -45,7 +41,6 @@ export default function WishlistScreen() {
   }, []);
 
   const removeFromWishlist = async (id, scaleAnim) => {
-    // Animation: Item chhota ho ke gayab
     Animated.timing(scaleAnim, {
       toValue: 0,
       duration: 300,
@@ -53,6 +48,7 @@ export default function WishlistScreen() {
     }).start(async () => {
       const updated = wishlist.filter((i) => i._id !== id);
       await AsyncStorage.setItem("wishlist", JSON.stringify(updated));
+      setWishlist(updated); // Immediate UI update
       DeviceEventEmitter.emit("wishlistUpdated");
       Alert.alert("❤️ Removed!", "Dil se nikaal diya bhai!", [{ text: "OK" }]);
     });
@@ -68,7 +64,12 @@ export default function WishlistScreen() {
           onPress={() => router.push(`/products/productDetails?productId=${item._id}`)}
           style={styles.touchArea}
         >
-          <Image source={{ uri: getImageUri(item.image) }} style={styles.img} resizeMode="cover" />
+          <Image
+            source={{ uri: getImageUrl(item.image) }}
+            style={styles.img}
+            resizeMode="cover"
+            defaultSource={{ uri: "https://via.placeholder.com/100" }}
+          />
 
           <View style={styles.info}>
             <Text style={styles.name} numberOfLines={2}>
@@ -88,7 +89,7 @@ export default function WishlistScreen() {
             onPress={() => removeFromWishlist(item._id, scaleAnim)}
             style={styles.removeBtn}
           >
-            <Ionicons name="heart" size={28} color="#ff6b6b" />
+            <Ionicons name="heart" size={28} color="#ff3b30" />
           </TouchableOpacity>
         </TouchableOpacity>
       </Animated.View>
@@ -98,14 +99,14 @@ export default function WishlistScreen() {
   if (wishlist.length === 0) {
     return (
       <View style={styles.emptyContainer}>
-        <Animated.View style={styles.heartPulse}>
-          <Ionicons name="heart-outline" size={100} color="#ff6b6b" />
-        </Animated.View>
-        <Text style={styles.emptyTitle}>Wishlist Khali Hai</Text>
-        <Text style={styles.emptySubtitle}>Jo dil ko bhaaye, yahan daal do</Text>
+        <Ionicons name="heart-outline" size={110} color="#ff6b6b50" />
+        <Text style={styles.emptyTitle}>Wishlist Khali Hai ❤️</Text>
+        <Text style={styles.emptySubtitle}>
+          Jo dil ko bhaaye, yahan save kar do
+        </Text>
         <TouchableOpacity
           style={styles.shopBtn}
-          onPress={() => router.replace("/drawer/homeScreen")}
+          onPress={() => router.replace("/(drawer)/homeScreen")}
         >
           <Text style={styles.shopBtnText}>Shopping Shuru Karo</Text>
         </TouchableOpacity>
@@ -115,9 +116,10 @@ export default function WishlistScreen() {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.headerTitle}>My Wishlist ({wishlist.length})</Text>
       <FlatList
         data={wishlist}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item) => item._id.toString()}
         contentContainerStyle={styles.list}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}
@@ -127,8 +129,22 @@ export default function WishlistScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fffaf8" },
-  list: { padding: 16, paddingTop: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: "#fffaf8",
+  },
+  headerTitle: {
+    fontSize: 26,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 20,
+    marginBottom: 10,
+    color: "#ff3b30",
+  },
+  list: {
+    padding: 16,
+    paddingTop: 10,
+  },
   itemContainer: {
     marginBottom: 18,
     borderRadius: 22,
@@ -151,10 +167,25 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: "#f0f0f0",
   },
-  info: { flex: 1, marginLeft: 16 },
-  name: { fontSize: 17, fontWeight: "700", color: "#333" },
-  priceRow: { flexDirection: "row", alignItems: "center", marginTop: 8 },
-  price: { fontSize: 20, fontWeight: "bold", color: "#ff3b30" },
+  info: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  name: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#333",
+  },
+  priceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  price: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#ff3b30",
+  },
   discountBadge: {
     backgroundColor: "#ff3b30",
     paddingHorizontal: 10,
@@ -162,10 +193,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginLeft: 12,
   },
-  discountText: { color: "#fff", fontWeight: "bold", fontSize: 12 },
+  discountText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
   removeBtn: {
     backgroundColor: "#ffebee",
-    padding: 12,
+    padding: 14,
     borderRadius: 30,
   },
   emptyContainer: {
@@ -173,13 +208,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fffaf8",
-    padding: 20,
+    padding: 30,
   },
-  heartPulse: {
-    animation: "pulse 2s infinite",
+  emptyTitle: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#ff3b30",
+    marginTop: 20,
   },
-  emptyTitle: { fontSize: 26, fontWeight: "bold", color: "#ff3b30", marginTop: 20 },
-  emptySubtitle: { fontSize: 16, color: "#ff6b6b", marginTop: 8 },
+  emptySubtitle: {
+    fontSize: 16,
+    color: "#ff6b6b",
+    marginTop: 8,
+    textAlign: "center",
+  },
   shopBtn: {
     marginTop: 30,
     backgroundColor: "#ff3b30",
@@ -188,5 +230,9 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     elevation: 10,
   },
-  shopBtnText: { color: "#fff", fontWeight: "bold", fontSize: 18 },
+  shopBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 18,
+  },
 });

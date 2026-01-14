@@ -1,4 +1,5 @@
-// File: app/products/productDetails.js
+
+// app/products/productDetails.js
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -20,11 +21,9 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 
-const { width, height } = Dimensions.get("window");
+import { BASE_URL, getImageUrl } from "../services/api";  // ✅ Yeh import sabse important
 
-// ✅ BASE_URLs
-const SERVER_URL = "http://10.23.168.194:5000"; // Products API
-const API_URL = "http://10.23.168.194:5001"; // Cart API
+const { width, height } = Dimensions.get("window");
 
 export default function ProductDetails() {
   const { productId } = useLocalSearchParams();
@@ -43,77 +42,54 @@ export default function ProductDetails() {
   const getAuthToken = async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-      console.log("🔑 Token from storage:", token ? "Found ✅" : "Not Found ❌");
+      console.log("🔑 Token:", token ? "Found ✅" : "Not Found ❌");
       return token;
     } catch (err) {
-      console.log("❌ Token fetch error:", err);
+      console.log("❌ Token error:", err);
       return null;
     }
   };
 
-  // 🔹 CHECK IF PRODUCT IS IN CART - BACKEND SE CHECK KARO
+  // 🔹 CHECK IF PRODUCT IS IN CART
   const checkIfInCart = async () => {
     if (!product) return;
     
     setCheckingCart(true);
     try {
       const token = await getAuthToken();
-      
       if (!token) {
-        console.log("⚠️ No token - Not logged in");
         setIsInCart(false);
-        setCheckingCart(false);
         return;
       }
 
-      console.log("📡 Checking if product in cart...");
-      console.log("🆔 Product ID:", product._id);
-      console.log("📏 Selected Size:", selectedSize);
-
-      const response = await axios.get(`${API_URL}/api/cart`, {
+      const response = await axios.get(`${BASE_URL}/api/cart`, {
         headers: { 
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
       
-      console.log("📦 Cart check response:", response.data);
-
       if (response.data.success && response.data.cart) {
         const cart = response.data.cart.items || [];
-        console.log("🛒 Cart items:", cart.length);
-        
-        // Check if product exists in cart with same size
         const exists = cart.some(item => {
           const itemProdId = item.productId?._id || item.productId;
           const itemSize = item.selectedSize || "";
           const currentSize = selectedSize || "";
           
-          const match = String(itemProdId) === String(product._id) && 
-                       String(itemSize) === String(currentSize);
-          
-          if (match) {
-            console.log("✅ Product found in cart!");
-          }
-          return match;
+          return String(itemProdId) === String(product._id) && 
+                 String(itemSize) === String(currentSize);
         });
         
         setIsInCart(exists);
-        console.log("🎯 Is in cart:", exists);
       } else {
         setIsInCart(false);
       }
     } catch (error) {
-      console.log("❌ Check cart error:", error.response?.data || error.message);
-      
+      console.log("❌ Cart check error:", error.response?.data || error.message);
       if (error.response?.status === 401) {
-        console.log("🔓 Token expired - User needs to login");
         await AsyncStorage.removeItem("token");
-        setIsInCart(false);
-      } else {
-        // Fallback to false on error
-        setIsInCart(false);
       }
+      setIsInCart(false);
     } finally {
       setCheckingCart(false);
     }
@@ -123,9 +99,7 @@ export default function ProductDetails() {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      console.log("📡 Fetching product:", productId);
-      
-      const res = await axios.get(`${SERVER_URL}/api/products/${productId}`);
+      const res = await axios.get(`${BASE_URL}/api/products/${productId}`);
       
       if (!res.data?.data) {
         throw new Error("Product not found");
@@ -137,15 +111,14 @@ export default function ProductDetails() {
         : productData.currentPrice;
 
       setProduct({ ...productData, originalPrice });
-      console.log("✅ Product loaded:", productData.name);
 
-      // Wishlist check (local storage - can be migrated to backend later)
+      // Wishlist check (local)
       const wishlistRaw = await AsyncStorage.getItem("wishlist");
       const wishlist = wishlistRaw ? JSON.parse(wishlistRaw) : [];
       setIsWishlisted(wishlist.some(i => i._id === productData._id));
 
     } catch (err) {
-      console.log("❌ Fetch product error:", err.message);
+      console.log("❌ Product fetch error:", err.message);
       Alert.alert("Error", "Product load nahi hua!");
       router.back();
     } finally {
@@ -157,17 +130,12 @@ export default function ProductDetails() {
     if (productId) fetchProduct();
   }, [productId]);
 
-  // Check cart whenever product or size changes
   useEffect(() => {
-    if (product) {
-      checkIfInCart();
-    }
+    if (product) checkIfInCart();
   }, [product, selectedSize]);
 
-  // 🔹 ADD TO CART - BACKEND API with FULL DEBUG
+  // 🔹 ADD TO CART
   const handleAddToCart = async () => {
-    console.log("🛒 ========== ADD TO CART STARTED ==========");
-    
     if (product?.sizes?.length > 0 && !selectedSize) {
       Alert.alert("Size Chuno!", "Pehle size select kar bhai!");
       return;
@@ -175,13 +143,10 @@ export default function ProductDetails() {
 
     try {
       const token = await getAuthToken();
-      console.log("🔑 Token Status:", token ? "Found ✅" : "Not Found ❌");
-
       if (!token) {
-        console.log("❌ No token - Redirecting to login");
         Alert.alert(
           "Login Required",
-          "Cart me item add karne ke liye pehle login karo!",
+          "Cart me add karne ke liye login karo!",
           [
             { text: "Cancel", style: "cancel" },
             { text: "Login", onPress: () => router.push("/auth/loginScreen") }
@@ -199,12 +164,8 @@ export default function ProductDetails() {
         selectedSize: selectedSize || null
       };
 
-      console.log("📦 Payload:", payload);
-      console.log("🌐 API URL:", `${API_URL}/api/cart/add`);
-
-      // ✅ Backend API call
       const response = await axios.post(
-        `${API_URL}/api/cart/add`,
+        `${BASE_URL}/api/cart/add`,
         payload,
         {
           headers: {
@@ -214,18 +175,8 @@ export default function ProductDetails() {
         }
       );
 
-      console.log("✅ ========== SUCCESS ==========");
-      console.log("Status:", response.status);
-      console.log("Response:", response.data);
-      console.log("================================");
-
       if (response.data.success) {
-        console.log("🎉 Item successfully added to backend cart!");
-        
-        // Emit event to update cart badge
         DeviceEventEmitter.emit("cartUpdated");
-        
-        // Update local state
         setIsInCart(true);
         setQuantity(1);
 
@@ -234,47 +185,26 @@ export default function ProductDetails() {
           `${quantity} × ${product.name}${selectedSize ? ` (Size: ${selectedSize})` : ""}`,
           [
             { text: "CONTINUE SHOPPING", style: "cancel" },
-            { 
-              text: "GO TO CART", 
-              onPress: () => router.push("/products/CartScreen") 
-            }
+            { text: "GO TO CART", onPress: () => router.push("/products/CartScreen") }
           ]
         );
       }
     } catch (err) {
-      console.log("❌ ========== ERROR ==========");
-      console.log("Error Type:", err.name);
-      console.log("Status Code:", err.response?.status);
-      console.log("Error Message:", err.response?.data?.message || err.message);
-      console.log("Full Response:", err.response?.data);
-      console.log("============================");
-      
+      console.log("Add to cart error:", err.response?.data || err.message);
       if (err.response?.status === 401) {
-        Alert.alert(
-          "Session Expired", 
-          "Please login again!",
-          [
-            { 
-              text: "OK", 
-              onPress: async () => {
-                await AsyncStorage.removeItem("token");
-                router.push("/auth/loginScreen");
-              }
-            }
-          ]
-        );
-      } else if (err.response?.status === 404) {
-        Alert.alert("Error", "Cart API endpoint not found! Check backend server.");
+        Alert.alert("Session Expired", "Please login again!", [
+          { text: "OK", onPress: async () => {
+            await AsyncStorage.removeItem("token");
+            router.push("/auth/loginScreen");
+          }}
+        ]);
       } else {
-        Alert.alert(
-          "Error", 
-          `Cart me add nahi ho paya!\n\n${err.response?.data?.message || err.message}`
-        );
+        Alert.alert("Error", err.response?.data?.message || "Add nahi ho paya");
       }
     }
   };
 
-  // 🔹 TOGGLE WISHLIST (Local storage - can migrate to backend)
+  // 🔹 TOGGLE WISHLIST (local)
   const toggleWishlist = async () => {
     try {
       const raw = await AsyncStorage.getItem("wishlist");
@@ -290,18 +220,18 @@ export default function ProductDetails() {
       setIsWishlisted(!isWishlisted);
       DeviceEventEmitter.emit("wishlistUpdated");
     } catch (err) {
-      console.log("❌ Wishlist toggle error:", err.message);
+      console.log("Wishlist error:", err);
     }
   };
 
-  // 🔹 SHARE PRODUCT
+  // 🔹 SHARE
   const shareProduct = async () => {
     try {
       await Share.share({
         message: `Dekh bhai mast product: ${product.name} - ₹${product.currentPrice}`,
       });
     } catch (err) {
-      console.log("❌ Share error:", err.message);
+      console.log("Share error:", err);
     }
   };
 
@@ -329,7 +259,7 @@ export default function ProductDetails() {
         {/* PRODUCT IMAGE */}
         <View style={{ position: "relative" }}>
           <Image 
-            source={{ uri: `${SERVER_URL}/uploads/${product.image}` }} 
+            source={{ uri: getImageUrl(product.image) }} 
             style={styles.heroImage} 
             resizeMode="cover" 
           />
@@ -440,26 +370,25 @@ export default function ProductDetails() {
           </TouchableOpacity>
 
           <TouchableOpacity
-  style={[styles.bottomBtn, { backgroundColor: "#ff9f1c" }]}
-  onPress={() => {
-    if (product?.sizes?.length > 0 && !selectedSize) {
-      Alert.alert("Select Size", "Pehle size chuno!");
-      return;
-    }
+            style={[styles.bottomBtn, { backgroundColor: "#ff9f1c" }]}
+            onPress={() => {
+              if (product?.sizes?.length > 0 && !selectedSize) {
+                Alert.alert("Select Size", "Pehle size chuno!");
+                return;
+              }
 
-    // Params safe send karo
-    router.push({
-      pathname: "/products/CheckoutScreen",
-      params: {
-        productId: String(product._id),
-        selectedSize: selectedSize ? String(selectedSize) : "N/A",
-        quantity: String(quantity)
-      }
-    });
-  }}
->
-  <Text style={styles.bottomBtnText}>BUY NOW</Text>
-</TouchableOpacity>
+              router.push({
+                pathname: "/products/CheckoutScreen",
+                params: {
+                  productId: String(product._id),
+                  selectedSize: selectedSize ? String(selectedSize) : "N/A",
+                  quantity: String(quantity)
+                }
+              });
+            }}
+          >
+            <Text style={styles.bottomBtnText}>BUY NOW</Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
     </View>
@@ -563,23 +492,3 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff" 
   },
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

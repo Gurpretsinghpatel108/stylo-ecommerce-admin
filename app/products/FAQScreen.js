@@ -1,4 +1,8 @@
-// app/products/FAQScreen.js
+
+
+
+// app/products/FAQScreen.js   ← FINAL PRODUCTION VERSION (ACCORDION + WHATSAPP LINK)
+
 import React, { useState } from "react";
 import {
   View,
@@ -6,10 +10,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Alert,
+  Linking,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+
+// Constants - Easy to change later
+const SUPPORT_PHONE = "+919202701080";
+const SUPPORT_WHATSAPP_MSG = "Hello Gauri Jewellers Support Team! 👋\nI have a question about FAQs or something else.";
 
 export default function FAQScreen() {
   const router = useRouter();
@@ -17,6 +27,22 @@ export default function FAQScreen() {
 
   const toggleExpand = (index) => {
     setExpanded(expanded === index ? null : index);
+  };
+
+  // WhatsApp open from footer
+  const openWhatsApp = async () => {
+    const url = `https://wa.me/${SUPPORT_PHONE}?text=${encodeURIComponent(SUPPORT_WHATSAPP_MSG)}`;
+
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("WhatsApp Not Found", "Please install WhatsApp to contact support.");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Unable to open WhatsApp. Dial manually: " + SUPPORT_PHONE);
+    }
   };
 
   const faqs = [
@@ -101,9 +127,16 @@ export default function FAQScreen() {
           </TouchableOpacity>
         ))}
 
-        <Text style={styles.footerText}>
-          Still have questions? Contact our support team via WhatsApp or Call – we're here 24/7! ❤️
-        </Text>
+        {/* Footer with real WhatsApp button */}
+        <View style={styles.footerContainer}>
+          <Text style={styles.footerText}>
+            Still have questions? Contact our support team – we're here 24/7! ❤️
+          </Text>
+          <TouchableOpacity style={styles.whatsappBtn} onPress={openWhatsApp}>
+            <Ionicons name="logo-whatsapp" size={24} color="#fff" />
+            <Text style={styles.whatsappText}>Chat on WhatsApp</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -152,11 +185,30 @@ const styles = StyleSheet.create({
     color: "#666",
     lineHeight: 22,
   },
+  footerContainer: {
+    marginTop: 30,
+    marginBottom: 40,
+    alignItems: "center",
+  },
   footerText: {
     textAlign: "center",
-    marginTop: 30,
     fontSize: 16,
     color: "#666",
-    fontStyle: "italic",
+    marginBottom: 16,
+  },
+  whatsappBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#25D366",
+    paddingVertical: 14,
+    paddingHorizontal: 30,
+    borderRadius: 30,
+    elevation: 5,
+  },
+  whatsappText: {
+    color: "#fff",
+    fontSize: 17,
+    fontWeight: "bold",
+    marginLeft: 12,
   },
 });

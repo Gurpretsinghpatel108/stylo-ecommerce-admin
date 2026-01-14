@@ -1,4 +1,9 @@
-// app/products/OrderScreen.js   ← FINAL PRO VERSION (WALLET = PAID DIKHEGA)
+
+
+
+
+
+
 
 import React, { useEffect, useState } from "react";
 import {
@@ -16,7 +21,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
-const API_URL = "http://10.23.168.194:5001"; // Tera backend
+import { BASE_URL, getImageUrl } from "../services/api"; // ✅ PRODUCTION URL
 
 export default function OrderScreen() {
   const [orders, setOrders] = useState([]);
@@ -31,8 +36,9 @@ export default function OrderScreen() {
         return;
       }
 
-      const res = await axios.get(`${API_URL}/api/orders/myorders`, {
+      const res = await axios.get(`${BASE_URL}/api/orders/myorders`, {
         headers: { Authorization: `Bearer ${token}` },
+        timeout: 15000,
       });
 
       if (res.data.success) {
@@ -59,7 +65,9 @@ export default function OrderScreen() {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color="#ff6b6b" />
-        <Text style={{ marginTop: 15, color: "#ff6b6b" }}>Loading Orders...</Text>
+        <Text style={{ marginTop: 15, color: "#ff6b6b" }}>
+          Loading Orders...
+        </Text>
       </View>
     );
   }
@@ -73,18 +81,25 @@ export default function OrderScreen() {
         data={orders}
         keyExtractor={(item) => item._id}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#ff6b6b"]} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#ff6b6b"]}
+          />
         }
         ListEmptyComponent={
           <View style={styles.empty}>
             <Ionicons name="bag-outline" size={80} color="#ddd" />
             <Text style={styles.emptyText}>No orders yet!</Text>
-            <Text style={{ color: "#999" }}>Jaldi se kuch khareedo bhai</Text>
+            <Text style={{ color: "#999" }}>
+              Jaldi se kuch khareedo bhai 😅
+            </Text>
           </View>
         }
         renderItem={({ item }) => {
-          const isWallet = item.paymentMethod === "WALLET" || 
-                          item.paymentMethod?.toLowerCase().includes("wallet");
+          const isWallet =
+            item.paymentMethod === "WALLET" ||
+            item.paymentMethod?.toLowerCase().includes("wallet");
 
           return (
             <View style={styles.orderCard}>
@@ -93,36 +108,48 @@ export default function OrderScreen() {
                   Order #{item._id.slice(-8).toUpperCase()}
                 </Text>
 
-                {/* WALLET = PAID, COD = CONFIRMED */}
-                <View style={[
-                  styles.statusBadge,
-                  isWallet ? styles.paidBadge : (item.status === "Confirmed" ? styles.confirmed : styles.pendingBadge)
-                ]}>
-                  <Text style={[
-                    styles.statusText,
-                    isWallet && styles.paidText
-                  ]}>
-                    {isWallet ? "PAID" : (item.status || "PENDING")}
+                {/* WALLET = PAID | COD = CONFIRMED */}
+                <View
+                  style={[
+                    styles.statusBadge,
+                    isWallet
+                      ? styles.paidBadge
+                      : item.status === "Confirmed"
+                      ? styles.confirmed
+                      : styles.pendingBadge,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.statusText,
+                      isWallet && styles.paidText,
+                    ]}
+                  >
+                    {isWallet ? "PAID" : item.status || "PENDING"}
                   </Text>
                 </View>
               </View>
 
               <Text style={styles.date}>
                 {new Date(item.createdAt).toLocaleDateString("en-IN")} •{" "}
-                <Text style={{ 
-                  fontWeight: "bold",
-                  color: isWallet ? "#d32f2f" : "#666"
-                }}>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: isWallet ? "#2e7d32" : "#666",
+                  }}
+                >
                   {isWallet ? "Paid via Wallet" : item.paymentMethod || "COD"}
                 </Text>
               </Text>
 
-              <Text style={styles.amount}>Total: ₹{item.totalAmount}</Text>
+              <Text style={styles.amount}>
+                Total: ₹{item.totalAmount}
+              </Text>
 
               {item.items.map((prod, i) => (
                 <View key={i} style={styles.itemRow}>
                   <Image
-                    source={{ uri: `http://10.23.168.194:5000/uploads/${prod.image}` }}
+                    source={{ uri: getImageUrl(prod.image) }} // ✅ FIXED
                     style={styles.itemImg}
                     resizeMode="cover"
                   />
@@ -139,7 +166,11 @@ export default function OrderScreen() {
 
               <TouchableOpacity style={styles.trackBtn}>
                 <Text style={styles.trackText}>Track Order</Text>
-                <Ionicons name="chevron-forward" size={20} color="#ff6b6b" />
+                <Ionicons
+                  name="chevron-forward"
+                  size={20}
+                  color="#ff6b6b"
+                />
               </TouchableOpacity>
             </View>
           );
@@ -149,9 +180,20 @@ export default function OrderScreen() {
   );
 }
 
+/* ================= STYLES ================= */
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8f8f8", paddingTop: 10 },
-  loader: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    backgroundColor: "#f8f8f8",
+    paddingTop: 10,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
   title: {
     fontSize: 26,
     fontWeight: "bold",
@@ -170,29 +212,86 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 10,
   },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  orderId: { fontSize: 13, color: "#666", fontWeight: "600" },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  orderId: {
+    fontSize: 13,
+    color: "#666",
+    fontWeight: "600",
+  },
 
-  // PAID Badge (Wallet Orders)
-  paidBadge: { backgroundColor: "#e8f5e8", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
-  paidText: { color: "#2e7d32", fontWeight: "bold" },
+  /* BADGES */
+  paidBadge: {
+    backgroundColor: "#e8f5e8",
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  paidText: {
+    color: "#2e7d32",
+    fontWeight: "bold",
+  },
+  confirmed: {
+    backgroundColor: "#e8f5e8",
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  pendingBadge: {
+    backgroundColor: "#ffebee",
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  statusBadge: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#ff3b30",
+  },
 
-  // Confirmed Badge (COD Orders)
-  confirmed: { backgroundColor: "#e8f5e8" },
-
-  // Default Badge (Pending etc)
-  pendingBadge: { backgroundColor: "#ffebee", paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
-
-  statusBadge: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20 },
-  statusText: { fontSize: 12, fontWeight: "bold", color: "#ff3b30" },
-
-  date: { marginTop: 5, color: "#888", fontSize: 13 },
-  amount: { marginTop: 8, fontSize: 18, fontWeight: "bold", color: "#222" },
-  itemRow: { flexDirection: "row", marginTop: 15, alignItems: "center" },
-  itemImg: { width: 70, height: 70, borderRadius: 12, marginRight: 15 },
-  itemName: { fontWeight: "bold", fontSize: 16 },
-  itemDetails: { color: "#666", marginTop: 4 },
-  price: { color: "#ff6b6b", fontWeight: "bold", marginTop: 4 },
+  date: {
+    marginTop: 5,
+    color: "#888",
+    fontSize: 13,
+  },
+  amount: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#222",
+  },
+  itemRow: {
+    flexDirection: "row",
+    marginTop: 15,
+    alignItems: "center",
+  },
+  itemImg: {
+    width: 70,
+    height: 70,
+    borderRadius: 12,
+    marginRight: 15,
+  },
+  itemName: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  itemDetails: {
+    color: "#666",
+    marginTop: 4,
+  },
+  price: {
+    color: "#ff6b6b",
+    fontWeight: "bold",
+    marginTop: 4,
+  },
   trackBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -204,7 +303,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ffcccc",
   },
-  trackText: { color: "#ff6b6b", fontWeight: "bold", marginRight: 5 },
-  empty: { flex: 1, justifyContent: "center", alignItems: "center", marginTop: 100 },
-  emptyText: { fontSize: 20, marginTop: 20, color: "#999" },
+  trackText: {
+    color: "#ff6b6b",
+    fontWeight: "bold",
+    marginRight: 5,
+  },
+  empty: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 100,
+  },
+  emptyText: {
+    fontSize: 20,
+    marginTop: 20,
+    color: "#999",
+  },
 });

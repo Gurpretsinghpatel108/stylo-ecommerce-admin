@@ -1,4 +1,6 @@
-// app/products/CheckoutScreen.js   ← SABSE FINAL, UPDATED & PERFECT VERSION (ORDER ID LINKED)
+
+
+// app/products/CheckoutScreen.js   ← FINAL PRODUCTION VERSION (ORDER ID LINKED, DYNAMIC URL)
 
 import React, { useEffect, useState } from "react";
 import {
@@ -17,9 +19,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 
-import { GET_PRODUCT_API, PLACE_ORDER_API, getImageUrl } from "../services/api";
-
-const AUTH_BASE_URL = "http://10.23.168.194:5001"; // TERA LAPTOP KA IP
+import { GET_PRODUCT_API, PLACE_ORDER_API, getImageUrl, BASE_URL } from "../services/api";  // BASE_URL import kar liya
 
 export default function CheckoutScreen() {
   const { productId, selectedSize, quantity: qtyParam } = useLocalSearchParams();
@@ -115,10 +115,10 @@ export default function CheckoutScreen() {
 
           // STEP 2: AB WALLET SE DEDUCT KAR + ORDER ID BHEJ
           const deductRes = await axios.post(
-            `${AUTH_BASE_URL}/api/user/use-wallet`,
+            `${BASE_URL}/api/user/use-wallet`,  // ← YE CHANGE KIA! AUTH_BASE_URL hata diya
             {
               amountToDeduct: totalAmount,
-              orderId: orderId, // ← YE BHEJ DIYA, AB HISTORY MEIN LINK HOGA
+              orderId: orderId,
               description: `Payment for Order #${orderId.slice(-6).toUpperCase()}`,
             },
             { headers: { Authorization: `Bearer ${token}` }, timeout: 20000 }
@@ -143,7 +143,7 @@ export default function CheckoutScreen() {
         return;
       }
 
-      // COD ORDER (NO CHANGE)
+      // COD ORDER
       const codRes = await axios.post(
         PLACE_ORDER_API,
         {
@@ -175,7 +175,7 @@ export default function CheckoutScreen() {
     }
   };
 
-  // SUCCESS SCREEN (NO CHANGE)
+  // SUCCESS SCREEN
   if (orderSuccess) {
     return (
       <View style={styles.successContainer}>
@@ -214,7 +214,6 @@ export default function CheckoutScreen() {
     );
   }
 
-  // UI REMAINS SAME (NO CHANGE NEEDED)
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
@@ -299,7 +298,7 @@ export default function CheckoutScreen() {
   );
 }
 
-// STYLES SAME RAHEGA (NO CHANGE)
+// Styles same rakh (tera original hi mast hai)
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f8f8f8" },
   loader: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
@@ -334,6 +333,6 @@ const styles = StyleSheet.create({
   successMsg: { fontSize: 18, color: "#666", textAlign: "center", marginTop: 16, lineHeight: 28 },
   successBtn: { backgroundColor: "#ff6b6b", padding: 18, borderRadius: 16, width: "100%", alignItems: "center", marginTop: 40 },
   successBtnText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
-  successBtn2: { backgroundColor: "#f0f0f0f0", padding: 16, borderRadius: 16, width: "100%", alignItems: "center", marginTop: 12 },
+  successBtn2: { backgroundColor: "#f0f0f0", padding: 16, borderRadius: 16, width: "100%", alignItems: "center", marginTop: 12 },
   successBtn2Text: { color: "#333", fontSize: 17, fontWeight: "600" },
 });

@@ -1,4 +1,7 @@
-// app/products/CartScreen.js   ← FINAL ULTIMATE VERSION (WALLET + COD FULLY WORKING, ORDER ID LINKED)
+
+
+
+// app/products/CartScreen.js   ← FINAL PRODUCTION VERSION (WALLET + COD FULLY WORKING, ORDER ID LINKED, DYNAMIC URL)
 
 import React, { useEffect, useState } from "react";
 import {
@@ -18,9 +21,7 @@ import { DeviceEventEmitter } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 
-import { PLACE_ORDER_API, getImageUrl } from "../services/api";
-
-const AUTH_BASE_URL = "http://10.23.168.194:5001"; // TERA LAPTOP IP
+import { PLACE_ORDER_API, getImageUrl, BASE_URL } from "../services/api";  // BASE_URL import kar le api.js se
 
 export default function CartScreen() {
   const router = useRouter();
@@ -135,7 +136,7 @@ export default function CartScreen() {
 
           // STEP 2: AB WALLET SE DEDUCT KAR + ORDER ID BHEJ
           const deductRes = await axios.post(
-            `${AUTH_BASE_URL}/api/user/use-wallet`,
+            `${BASE_URL}/api/user/use-wallet`,  // ← YE CHANGE KIA! AUTH_BASE_URL hata diya
             {
               amountToDeduct: totalAmount,
               orderId: orderId, // ← YE BHEJ DIYA
@@ -365,6 +366,7 @@ export default function CartScreen() {
   );
 }
 
+// Styles same rakh (tera original hi perfect hai)
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f8f8f8" },
   loader: { flex: 1, justifyContent: "center", alignItems: "center" },

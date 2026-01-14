@@ -1,37 +1,34 @@
-
-
 {
   "expo": {
     "name": "RN Stylo",
     "slug": "rn-Stylo",
     "version": "1.0.0",
+    "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-
     "ios": {
       "bundleIdentifier": "com.render.rnstylo",
-      "buildNumber": "1.0.0",
-      "supportsTablet": false
+      "buildNumber": "2",
+      "supportsTablet": false,
+      "runtimeVersion": "1.0.0"
     },
-
     "android": {
       "package": "com.render.rnstylo",
-      "versionCode": 1,
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "runtimeVersion": "1.0.0"
     },
-
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/icon.png"
     },
-
     "plugins": [
       "expo-router",
       [
@@ -44,18 +41,22 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-build-properties"
     ],
-
     "experiments": {
       "typedRoutes": true
     },
-
     "extra": {
       "router": {},
       "eas": {
         "projectId": "18cb62d0-8c00-49fc-b130-f64cfb0c7046"
-      }
+      },
+      "apiUrl": "https://ecommerce-backend-production-0cdd.up.railway.app"
+    },
+    "owner": "gurpreet8770",
+    "updates": {
+      "url": "https://u.expo.dev/18cb62d0-8c00-49fc-b130-f64cfb0c7046"
     }
   }
 }

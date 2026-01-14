@@ -124,24 +124,61 @@
 
 
 
+// // app/_layout.js
+// import React from "react";
+// import { Stack } from "expo-router";
+// import { deactivateKeepAwake } from "expo-keep-awake";
+
+// deactivateKeepAwake(); // prevent keep-awake error
+
+// export default function RootLayout() {
+//   return (
+//     <Stack screenOptions={{ headerShown: false }}>
+//       {/* Starting point for the app */}
+//       <Stack.Screen name="index" />
+
+//       {/* Auth Screens */}
+//       <Stack.Screen name="auth/loginScreen" />
+
+//       {/* Drawer screens */}
+//       <Stack.Screen name="drawer" />
+//     </Stack>
+//   );
+// }
+
+
+
+
+
+
 // app/_layout.js
 import React from "react";
 import { Stack } from "expo-router";
 import { deactivateKeepAwake } from "expo-keep-awake";
+import { LogBox } from "react-native";
+
+// Reanimated ka TurboModule warning hide kar do (non-fatal hai)
+LogBox.ignoreLogs([
+  'TurboModule method "installTurboModule" called with 1 arguments',
+  'Exception in HostFunction: TurboModule method "installTurboModule"',
+  'SafeAreaView has been deprecated', // optional, agar baaki jagah fix nahi kiya
+]);
 
 deactivateKeepAwake(); // prevent keep-awake error
 
 export default function RootLayout() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* Starting point for the app */}
+      {/* Splash / Starting point */}
       <Stack.Screen name="index" />
 
       {/* Auth Screens */}
       <Stack.Screen name="auth/loginScreen" />
 
-      {/* Drawer screens */}
-      <Stack.Screen name="drawer" />
+      {/* Drawer entry point – "drawer" name hata diya kyunki route nahi exist karta */}
+      {/* Agar drawer group (drawer/_layout.js) hai toh direct nested screens use karo */}
+      {/* Ya agar group banana hai toh name="(drawer)" use karo */}
+      {/* <Stack.Screen name="(drawer)" />  // Uncomment agar group bana rahe ho */}
     </Stack>
   );
 }
