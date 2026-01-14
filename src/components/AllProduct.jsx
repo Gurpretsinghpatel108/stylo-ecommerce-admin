@@ -336,7 +336,8 @@ function AllProduct() {
                 <tr key={prod._id}>
                   <td>
                     <img
-                      src={prod.image ? `${API_BASE}/uploads/${prod.image}` : placeholderImg}
+                      // src={prod.image ? `${API_BASE}/uploads/${prod.image}` : placeholderImg}
+                      src={prod.image || placeholderImg}
                       alt={prod.name}
                       className="product-thumb"
                       onError={(e) => {
