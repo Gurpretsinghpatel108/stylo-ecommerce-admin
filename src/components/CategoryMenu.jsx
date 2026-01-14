@@ -1,4 +1,6 @@
 
+
+
 // // src/components/CategoryMenu.jsx
 // import React, { useState, useEffect } from "react";
 // import axios from "axios";
@@ -13,7 +15,8 @@
 //   const [searchTerm, setSearchTerm] = useState("");
 //   const [editId, setEditId] = useState(null);
 
-  
+//   // API base URL (Vite env se production/local handle)
+//   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
 //   useEffect(() => {
 //     fetchCategories();
@@ -22,10 +25,11 @@
 //   // Fetch all categories
 //   const fetchCategories = async () => {
 //     try {
-//       const res = await axios.get("http://localhost:5000/api/categories");
+//       const res = await axios.get(`${API_BASE}/api/categories`);
 //       setCategories(Array.isArray(res.data.data) ? res.data.data : []);
 //     } catch (err) {
 //       console.error("Failed to fetch categories:", err);
+//       alert("Categories load nahi ho rahi: " + (err.response?.data?.message || err.message || "Network error"));
 //       setCategories([]);
 //     }
 //   };
@@ -33,7 +37,7 @@
 //   // Add or Update Category
 //   const handleAddOrUpdateCategory = async () => {
 //     if (!newCategory.trim()) {
-//       alert("Category name is required");
+//       alert("Category name daal bhai");
 //       return;
 //     }
 
@@ -46,28 +50,30 @@
 //       if (editId) {
 //         // UPDATE
 //         await axios.put(
-//           `http://localhost:5000/api/categories/${editId}`,
+//           `${API_BASE}/api/categories/${editId}`,
 //           formData,
 //           { headers: { "Content-Type": "multipart/form-data" } }
 //         );
+//         alert("Category updated successfully!");
 //       } else {
 //         // ADD
 //         await axios.post(
-//           "http://localhost:5000/api/categories",
+//           `${API_BASE}/api/categories`,
 //           formData,
 //           { headers: { "Content-Type": "multipart/form-data" } }
 //         );
+//         alert("Category added successfully!");
 //       }
 
 //       resetForm();
 //       fetchCategories();
 //     } catch (err) {
 //       console.error("Error saving category:", err);
-//       alert("Failed to save category");
+//       alert("Category save nahi hui: " + (err.response?.data?.message || err.message || "Network error"));
 //     }
 //   };
 
-//   // Edit
+//   // Edit Category
 //   const handleEdit = (cat) => {
 //     setNewCategory(cat.name || "");
 //     setNewStatus(cat.status || "Active");
@@ -75,15 +81,30 @@
 //     setShowAddBox(true);
 //   };
 
-//   // Delete
+//   // Delete Category (improved with logs & checks)
 //   const handleDelete = async (id) => {
-//     if (!window.confirm("Are you sure you want to delete this category?")) return;
+//     console.log("Attempting to delete category ID:", id); // ← Debug: ID check karo
+
+//     if (!id) {
+//       alert("Category ID missing hai bhai! Check console.");
+//       return;
+//     }
+
+//     if (!window.confirm("Pakka delete karna hai is category ko?")) return;
+
 //     try {
-//       await axios.delete(`http://localhost:5000/api/categories/${id}`);
+//       const response = await axios.delete(`${API_BASE}/api/categories/${id}`);
+//       console.log("Delete success response:", response); // ← Success debug
+//       alert("Category delete ho gayi!");
 //       fetchCategories();
 //     } catch (err) {
-//       console.error("Error deleting category:", err);
-//       alert("Failed to delete category");
+//       console.error("Full delete error:", err.response || err); // ← Detailed error
+//       alert(
+//         "Delete nahi hui: " +
+//           (err.response?.data?.message ||
+//             err.message ||
+//             "Unknown error - check console & backend logs")
+//       );
 //     }
 //   };
 
@@ -99,6 +120,10 @@
 //   const filteredCategories = categories.filter(
 //     (cat) => cat.name && cat.name.toLowerCase().includes(searchTerm.toLowerCase())
 //   );
+
+//   // Modern placeholder (placehold.co - working in 2026)
+//   const placeholderImg = "https://placehold.co/100x100?text=No+Image&font=roboto";
+//   const errorFallback = "https://placehold.co/100x100?text=Error&font=roboto";
 
 //   return (
 //     <div className="category-menu">
@@ -123,7 +148,7 @@
 //             <h3>{editId ? "Edit Category" : "Add New Category"}</h3>
 //             <input
 //               type="text"
-//               placeholder="Enter category"
+//               placeholder="Enter category name"
 //               value={newCategory}
 //               onChange={(e) => setNewCategory(e.target.value)}
 //             />
@@ -134,7 +159,7 @@
 //             <input
 //               type="file"
 //               accept="image/*"
-//               onChange={(e) => setNewImage(e.target.files[0])}
+//               onChange={(e) => setNewImage(e.target.files?.[0] || null)}
 //             />
 //             <div className="overlay-actions">
 //               <button className="save-btn" onClick={handleAddOrUpdateCategory}>
@@ -162,13 +187,18 @@
 //               <tr key={cat._id}>
 //                 <td>{index + 1}</td>
 //                 <td>
-//                   {cat.image ? (
-//                     <img
-//                       src={`http://localhost:5000/uploads/${cat.image}`}
-//                       alt={cat.name}
-//                       className="cat-image"
-//                     />
-//                   ) : "-"}
+//                   <img
+//                     // src={cat.image ? `${API_BASE}/uploads/${cat.image}` : placeholderImg}
+//                     src={cat.image || placeholderImg}
+//                     alt={cat.name || "Category image"}
+//                     className="cat-image"
+//                     width={100}
+//                     height={100}
+//                     onError={(e) => {
+//                       e.target.src = errorFallback;
+//                       e.target.alt = "Image load failed";
+//                     }}
+//                   />
 //                 </td>
 //                 <td>{cat.name}</td>
 //                 <td>
@@ -199,6 +229,8 @@
 
 
 
+
+
 // src/components/CategoryMenu.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
@@ -213,14 +245,12 @@ function CategoryMenu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editId, setEditId] = useState(null);
 
-  // API base URL (Vite env se production/local handle)
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
   useEffect(() => {
     fetchCategories();
   }, []);
 
-  // Fetch all categories
   const fetchCategories = async () => {
     try {
       const res = await axios.get(`${API_BASE}/api/categories`);
@@ -232,7 +262,6 @@ function CategoryMenu() {
     }
   };
 
-  // Add or Update Category
   const handleAddOrUpdateCategory = async () => {
     if (!newCategory.trim()) {
       alert("Category name daal bhai");
@@ -245,33 +274,39 @@ function CategoryMenu() {
       formData.append("status", newStatus);
       if (newImage) formData.append("image", newImage);
 
+      let response;
       if (editId) {
-        // UPDATE
-        await axios.put(
+        console.log("Updating category ID:", editId);
+        response = await axios.put(
           `${API_BASE}/api/categories/${editId}`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          formData
         );
         alert("Category updated successfully!");
       } else {
-        // ADD
-        await axios.post(
+        console.log("Adding new category");
+        response = await axios.post(
           `${API_BASE}/api/categories`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          formData
         );
         alert("Category added successfully!");
+        console.log("Add response:", response.data);
       }
 
       resetForm();
       fetchCategories();
     } catch (err) {
-      console.error("Error saving category:", err);
-      alert("Category save nahi hui: " + (err.response?.data?.message || err.message || "Network error"));
+      console.error("FULL ERROR DETAILS:", err);
+      if (err.response) {
+        console.log("Server error response:", err.response.data);
+        alert("Server error: " + (err.response.data.message || "Unknown server error"));
+      } else if (err.request) {
+        alert("Network/CORS issue – backend check kar bhai!");
+      } else {
+        alert("Axios error: " + err.message);
+      }
     }
   };
 
-  // Edit Category
   const handleEdit = (cat) => {
     setNewCategory(cat.name || "");
     setNewStatus(cat.status || "Active");
@@ -279,9 +314,8 @@ function CategoryMenu() {
     setShowAddBox(true);
   };
 
-  // Delete Category (improved with logs & checks)
   const handleDelete = async (id) => {
-    console.log("Attempting to delete category ID:", id); // ← Debug: ID check karo
+    console.log("Attempting to delete category ID:", id);
 
     if (!id) {
       alert("Category ID missing hai bhai! Check console.");
@@ -292,11 +326,11 @@ function CategoryMenu() {
 
     try {
       const response = await axios.delete(`${API_BASE}/api/categories/${id}`);
-      console.log("Delete success response:", response); // ← Success debug
+      console.log("Delete success response:", response);
       alert("Category delete ho gayi!");
       fetchCategories();
     } catch (err) {
-      console.error("Full delete error:", err.response || err); // ← Detailed error
+      console.error("Full delete error:", err.response || err);
       alert(
         "Delete nahi hui: " +
           (err.response?.data?.message ||
@@ -306,7 +340,6 @@ function CategoryMenu() {
     }
   };
 
-  // Reset form
   const resetForm = () => {
     setNewCategory("");
     setNewStatus("Active");
@@ -315,11 +348,11 @@ function CategoryMenu() {
     setShowAddBox(false);
   };
 
-  const filteredCategories = categories.filter(
-    (cat) => cat.name && cat.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter + sort (alphabetical order mein stable rahega, nayi add hone pe sahi jagah dikhegi)
+  const filteredCategories = categories
+    .filter((cat) => cat.name && cat.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
-  // Modern placeholder (placehold.co - working in 2026)
   const placeholderImg = "https://placehold.co/100x100?text=No+Image&font=roboto";
   const errorFallback = "https://placehold.co/100x100?text=Error&font=roboto";
 
@@ -370,48 +403,50 @@ function CategoryMenu() {
       )}
 
       {filteredCategories.length > 0 ? (
-        <table className="category-table">
-          <thead>
-            <tr>
-              <th>S.No</th>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredCategories.map((cat, index) => (
-              <tr key={cat._id}>
-                <td>{index + 1}</td>
-                <td>
-                  <img
-                    // src={cat.image ? `${API_BASE}/uploads/${cat.image}` : placeholderImg}
-                    src={cat.image || placeholderImg}
-                    alt={cat.name || "Category image"}
-                    className="cat-image"
-                    width={100}
-                    height={100}
-                    onError={(e) => {
-                      e.target.src = errorFallback;
-                      e.target.alt = "Image load failed";
-                    }}
-                  />
-                </td>
-                <td>{cat.name}</td>
-                <td>
-                  <span className={cat.status === "Active" ? "active" : "inactive"}>
-                    {cat.status}
-                  </span>
-                </td>
-                <td>
-                  <button className="edit-btn" onClick={() => handleEdit(cat)}>Edit</button>
-                  <button className="delete-btn" onClick={() => handleDelete(cat._id)}>Delete</button>
-                </td>
+        <div className="table-wrapper">
+          <table className="category-table">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredCategories.map((cat, index) => (
+                <tr key={cat._id}>
+                  <td>{index + 1}</td>
+                  <td>
+                    <img
+                      src={cat.image || placeholderImg}
+                      alt={cat.name || "Category image"}
+                      className="cat-image"
+                      width={100}
+                      height={100}
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.src = errorFallback;
+                        e.target.alt = "Image load failed";
+                      }}
+                    />
+                  </td>
+                  <td>{cat.name}</td>
+                  <td>
+                    <span className={cat.status === "Active" ? "active" : "inactive"}>
+                      {cat.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button className="edit-btn" onClick={() => handleEdit(cat)}>Edit</button>
+                    <button className="delete-btn" onClick={() => handleDelete(cat._id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p style={{ textAlign: "center", color: "#777" }}>No categories found</p>
       )}
