@@ -386,7 +386,8 @@ function CategoryMenu() {
                 <td>{index + 1}</td>
                 <td>
                   <img
-                    src={cat.image ? `${API_BASE}/uploads/${cat.image}` : placeholderImg}
+                    // src={cat.image ? `${API_BASE}/uploads/${cat.image}` : placeholderImg}
+                    src={cat.image || placeholderImg}
                     alt={cat.name || "Category image"}
                     className="cat-image"
                     width={100}
