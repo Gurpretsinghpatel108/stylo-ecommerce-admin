@@ -276,28 +276,28 @@ function CategoryMenu() {
 
       let response;
       if (editId) {
-        console.log("Updating category ID:", editId);
         response = await axios.put(
           `${API_BASE}/api/categories/${editId}`,
           formData
         );
         alert("Category updated successfully!");
       } else {
-        console.log("Adding new category");
         response = await axios.post(
           `${API_BASE}/api/categories`,
           formData
         );
         alert("Category added successfully!");
-        console.log("Add response:", response.data);
+
+        // Nayi category ko list ke END mein append kar (line by line add hoga)
+        const newCat = response.data.data || response.data; // backend se returned category
+        setCategories(prev => [...prev, newCat]);  // ← Yeh line add ki - end mein add
       }
 
       resetForm();
-      fetchCategories();
+      // fetchCategories(); // ← Comment kar diya taaki append order maintain rahe
     } catch (err) {
       console.error("FULL ERROR DETAILS:", err);
       if (err.response) {
-        console.log("Server error response:", err.response.data);
         alert("Server error: " + (err.response.data.message || "Unknown server error"));
       } else if (err.request) {
         alert("Network/CORS issue – backend check kar bhai!");
@@ -325,18 +325,12 @@ function CategoryMenu() {
     if (!window.confirm("Pakka delete karna hai is category ko?")) return;
 
     try {
-      const response = await axios.delete(`${API_BASE}/api/categories/${id}`);
-      console.log("Delete success response:", response);
+      await axios.delete(`${API_BASE}/api/categories/${id}`);
       alert("Category delete ho gayi!");
-      fetchCategories();
+      fetchCategories(); // Delete ke baad full refresh (order maintain rahega)
     } catch (err) {
       console.error("Full delete error:", err.response || err);
-      alert(
-        "Delete nahi hui: " +
-          (err.response?.data?.message ||
-            err.message ||
-            "Unknown error - check console & backend logs")
-      );
+      alert("Delete nahi hui: " + (err.response?.data?.message || err.message || "Unknown error"));
     }
   };
 
@@ -348,10 +342,10 @@ function CategoryMenu() {
     setShowAddBox(false);
   };
 
-  // Filter + sort (alphabetical order mein stable rahega, nayi add hone pe sahi jagah dikhegi)
-  const filteredCategories = categories
-    .filter((cat) => cat.name && cat.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  // Filter only (no sort – original order maintain rahega)
+  const filteredCategories = categories.filter(
+    (cat) => cat.name && cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const placeholderImg = "https://placehold.co/100x100?text=No+Image&font=roboto";
   const errorFallback = "https://placehold.co/100x100?text=Error&font=roboto";
