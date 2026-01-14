@@ -271,9 +271,9 @@ function AddProduct() {
   // Production-ready API base
   const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000";
 
-  // Placeholder images (yeh define kar diya - error yahin se aa raha tha!)
-  const PlaceholderImg = "https://placehold.co/100x100?text=No+Image&font=roboto";
-  const errorFallback = "https://placehold.co/100x100?text=Error&font=roboto";
+  // Placeholder images
+  const PlaceholderImg = "https://placehold.co/150x150?text=No+Image&font=roboto";
+  const errorFallback = "https://placehold.co/150x150?text=Error&font=roboto";
 
   useEffect(() => {
     fetchCategories();
@@ -333,8 +333,9 @@ function AddProduct() {
           status: product.status || "Active",
         });
 
+        // Direct Cloudinary URL use kar (no /uploads/ prefix)
         if (product.image) {
-          setImagePreview(`${API_BASE}/uploads/${product.image}`);
+          setImagePreview(product.image);
         }
       }
     };
@@ -342,11 +343,11 @@ function AddProduct() {
     prefillProduct();
   }, [id, productFromState]);
 
-  // Filter subcategories when category changes (yeh fix kiya - dropdown khulega ab)
+  // Filter subcategories when category changes
   useEffect(() => {
     if (formData.categoryId) {
       const filtered = subcategories.filter((sub) => {
-        const subCatId = sub.categoryId?._id || sub.categoryId; // populated ya string
+        const subCatId = sub.categoryId?._id || sub.categoryId;
         return subCatId && subCatId.toString() === formData.categoryId.toString();
       });
       setFilteredSubcategories(filtered);
