@@ -276,25 +276,18 @@ function CategoryMenu() {
 
       let response;
       if (editId) {
-        response = await axios.put(
-          `${API_BASE}/api/categories/${editId}`,
-          formData
-        );
+        response = await axios.put(`${API_BASE}/api/categories/${editId}`, formData);
         alert("Category updated successfully!");
       } else {
-        response = await axios.post(
-          `${API_BASE}/api/categories`,
-          formData
-        );
+        response = await axios.post(`${API_BASE}/api/categories`, formData);
         alert("Category added successfully!");
 
         // Nayi category ko list ke END mein append kar (line by line add hoga)
         const newCat = response.data.data || response.data; // backend se returned category
-        setCategories(prev => [...prev, newCat]);  // ← Yeh line add ki - end mein add
+        setCategories(prev => [...prev, newCat]); // ← End mein add (sabse neeche)
       }
 
       resetForm();
-      // fetchCategories(); // ← Comment kar diya taaki append order maintain rahe
     } catch (err) {
       console.error("FULL ERROR DETAILS:", err);
       if (err.response) {
@@ -342,7 +335,7 @@ function CategoryMenu() {
     setShowAddBox(false);
   };
 
-  // Filter only (no sort – original order maintain rahega)
+  // Filter only (no sort – original order maintain rahega, nayi end mein add hogi)
   const filteredCategories = categories.filter(
     (cat) => cat.name && cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
