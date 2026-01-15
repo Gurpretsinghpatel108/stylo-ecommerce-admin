@@ -47,16 +47,19 @@
     "experiments": {
       "typedRoutes": true
     },
+    "owner": "maksoft",
+    "updates": {
+      "url": "https://u.expo.dev/a9ddea0b-bc01-4eab-a539-2f8b1dc325ce"
+    },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "18cb62d0-8c00-49fc-b130-f64cfb0c7046"
-      },
-      "apiUrl": "https://ecommerce-backend-production-0cdd.up.railway.app"
-    },
-    "owner": "gurpreet8770",
-    "updates": {
-      "url": "https://u.expo.dev/18cb62d0-8c00-49fc-b130-f64cfb0c7046"
+        "projectId": "fddaf10f-8d4a-47bb-abaa-d8d3344208b9"
+      }
     }
+  },
+  "owner": "Alim Sir",
+  "updates": {
+    "url": "https://u.expo.dev/NEW_PROJECT_ID_HERE"
   }
 }

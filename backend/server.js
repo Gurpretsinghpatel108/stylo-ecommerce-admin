@@ -1,82 +1,12 @@
-// // backend/server.js
-// const express = require("express");
-// const cors = require("cors");
-// const mongoose = require("mongoose");
-// require("dotenv").config();
-
-// // Models register
-// require("./models/User");
-// require("./models/Cart");
-// require("./models/Order");
-// require("./models/Product");
-// require("./models/WalletTransaction"); // ← YE LINE ADD KAR DE BHAI! 🔥
-
-// const app = express();
-
-// // Middleware
-// app.use(express.json({ limit: "10mb" }));
-// app.use(express.urlencoded({ extended: true }));
-// app.use(cors());
-
-// // MongoDB Connection
-// mongoose
-//   .connect(process.env.MONGO_URL || "mongodb://127.0.0.1:27017/stylo-fashion")
-//   .then(() => console.log("MongoDB Connected"))
-//   .catch(err => {
-//     console.log("MongoDB Error:", err.message);
-//     process.exit(1);
-//   });
-
-// // Test Route
-// app.get("/", (req, res) => {
-//   res.json({ message: "Stylo Backend LIVE - COD Ready!", time: new Date() });
-// });
-
-// // Routes
-// app.use("/auth", require("./routes/authRoutes"));
-// app.use("/api/cart", require("./routes/cartRoutes"));
-// app.use("/api/orders", require("./routes/orderRoutes"));
-
-// // ✅ USER ROUTES (profile)
-// app.use("/api/user", require("./routes/UserRoutes"));
-
-// // 404 Handler
-// app.use((req, res, next) => {
-//   res.status(404).json({
-//     success: false,
-//     message: `Route ${req.originalUrl} not found!`
-//   });
-// });
-
-// // Global Error Handler
-// app.use((err, req, res, next) => {
-//   console.error("Server Error:", err.message);
-//   res.status(500).json({
-//     success: false,
-//     message: "Server Error",
-//     error: err.message
-//   });
-// });
-
-// // Server Start
-// const PORT = process.env.PORT || 5001;
-
-// app.listen(PORT, "0.0.0.0", () => {
-//   console.log(`Backend Running on http://10.23.168.194:${PORT}`);
-//   console.log(`CART & ORDERS READY!`);
-//   console.log(`COD ORDER PLACE HOGA AB!`);
-// });
-
-
-
-
 // backend/server.js
 const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const http = require("http");
+const { Server } = require("socket.io");
 require("dotenv").config();
 
-// Models register
+// Models
 require("./models/User");
 require("./models/Cart");
 require("./models/Order");
@@ -88,20 +18,39 @@ const app = express();
 // Middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: '*' }));  // Production mein '*' temporary, baad mein restrict kar (app ke origins daal)
+app.use(cors({ origin: '*' })); // Production mein restrict kar sakte ho
 
-// MongoDB Connection
+// MongoDB Connection – Atlas priority (local fallback sirf emergency ke liye)
 mongoose
-  .connect(process.env.MONGO_URL || "mongodb://127.0.0.1:27017/stylo-fashion")
-  .then(() => console.log("✅ MongoDB Connected"))
+  .connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/stylo-fashion")
+  .then(() => console.log("✅ MongoDB Connected Successfully!"))
   .catch(err => {
-    console.log("MongoDB Error:", err.message);
+    console.error("❌ MongoDB Connection FAILED:", err.message);
     process.exit(1);
   });
 
-// Test Route
-app.get("/", (req, res) => {
-  res.json({ message: "Stylo Backend LIVE - COD Ready!", time: new Date() });
+// HTTP Server + Socket.io
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Testing ke liye * – production mein specific origin daal do
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket'], // Polling avoid karo (production best)
+  path: '/socket.io/'
+});
+
+// Socket logs
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+
+  socket.on('ping', () => socket.emit('pong'));
 });
 
 // Routes
@@ -110,38 +59,38 @@ app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 app.use("/api/user", require("./routes/UserRoutes"));
 
-// Uploads route (agar images serve kar rha hai to add kar – Railway pe static files ke liye)
-app.use("/uploads", express.static("uploads"));  // ← YE ADD KAR DE BHAI! Images live ho jayengi
+// Static uploads
+app.use("/uploads", express.static("uploads"));
+
+// Test route
+app.get("/", (req, res) => {
+  res.json({ message: "Stylo Backend LIVE - Socket Ready!", time: new Date() });
+});
 
 // 404 Handler
-app.use((req, res, next) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found!`
-  });
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Cannot ${req.method} ${req.originalUrl}` });
 });
 
 // Global Error Handler
 app.use((err, req, res, next) => {
   console.error("Server Error:", err.message);
-  res.status(500).json({
-    success: false,
-    message: "Server Error",
-    error: err.message
-  });
+  res.status(500).json({ success: false, message: "Server Error", error: err.message });
 });
 
-// Server Start – RAILWAY FIX (dynamic PORT + host '0.0.0.0')
-const PORT = process.env.PORT || 5001;
+// Start Server
+const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Backend Running on port ${PORT}`);
-  console.log(`Listening at http://0.0.0.0:${PORT}`);
-  console.log(`CART & ORDERS READY!`);
-  console.log(`COD ORDER PLACE HOGA AB!`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server & Socket.io Running on port ${PORT}`);
+  console.log(`Local URL: http://localhost:${PORT}`);
+  console.log(`Network URL: http://192.168.29.72:${PORT}`); // Tere current IP ke hisaab se
 });
 
-// Optional: Idle timeout fix (kabhi 502 fix karta hai)
-const server = app.listen(PORT, "0.0.0.0");
+// Keep-alive for Railway
 server.keepAliveTimeout = 65000;
 server.headersTimeout = 66000;
+
+
+
+
